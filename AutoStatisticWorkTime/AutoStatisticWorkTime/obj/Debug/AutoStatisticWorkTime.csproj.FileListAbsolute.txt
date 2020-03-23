@@ -1,0 +1,10 @@
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\AutoStatisticWorkTime.csprojAssemblyReference.cache
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\Interop.ActProgTypeLib.dll
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\Interop.ActUtlTypeLib.dll
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\Interop.ACTUWZDLib.dll
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\AutoStatisticWorkTime.csproj.ResolveComReference.cache
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\bin\Debug\AutoStatisticWorkTime.exe.config
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\bin\Debug\AutoStatisticWorkTime.exe
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\bin\Debug\AutoStatisticWorkTime.pdb
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\AutoStatisticWorkTime.exe
+D:\txl\PLC\src\AutoStatisticWorkTime\AutoStatisticWorkTime\obj\Debug\AutoStatisticWorkTime.pdb
