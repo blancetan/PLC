@@ -27,52 +27,56 @@ namespace AutoStatisticHour
             actUtlType.ActLogicalStationNumber = 1;
             // not set password, is null
             actUtlType.ActPassword = "";
-
-            try
+            while (true) 
+            
             {
-                int  iReturnCode = actUtlType.Open();
-                if (iReturnCode == 0)
-                {    
-                    while(true)
-                     {  
-
+                try
+                {
+                    int iReturnCode = actUtlType.Open();
+                    if (iReturnCode == 0)
+                    {
                         for (int i = 1; i <= 10; i++)
                         {
-                            Int16 lineNumber = GetLineNumber();
-                            Int16 seatNumber = GetSeatNumber();
+                            Int16 lineNumber = GetLineNumber(actUtlType);
+                            ////Int16 seatNumber = GetSeatNumber();
+                            Int16 seatNumber = 1;
                             string startDateTime = GetStartDateTime(i, actUtlType);
                             string endDateTime = GetEndDateTime(i, actUtlType);
-                            Int16 workTime = GetWorkTime(i);
+                            int workTime = GetWorkTime(i, actUtlType);
 
                             // ..this datas are used to  test
                             //Int16 lineNumber = 1;
                             //Int16 seatNumber = 2;
                             //string startDateTime = "20-3-24 12:34:30";
-                            //string endDateTime = "20-3-24 12:34:50"; 
-                            //Int64 workTime = 20;
+                            //string endDateTime = "20-3-24 12:34:50";
+                            //int workTime = 20;
+
 
                             ExcueteInsertToSqlServer(lineNumber, seatNumber, startDateTime, endDateTime, workTime);
 
-
-
                         }
+
+                        actUtlType.Close();
+
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("connection fail! please reconnecting");
                     }
 
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine("connection fail! please reconnecting");
+                    Console.WriteLine(ex.ToString());
+                }
+                finally
+                {
+
                 }
 
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            finally
-            { 
-                
-            }
+          
             
         }
 
@@ -85,7 +89,7 @@ namespace AutoStatisticHour
         /// <param name="startDateTime"></param>
         /// <param name="endDateTime"></param>
         /// <param name="workTime"></param>
-        static void ExcueteInsertToSqlServer(Int16 lineNumber, Int16 seatNumber, string startDateTime, string endDateTime, Int64 workTime)
+        static void ExcueteInsertToSqlServer(Int16 lineNumber, Int16 seatNumber, string startDateTime, string endDateTime, int workTime)
         {
             string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
             //SqlConnection conn = null;
@@ -107,13 +111,13 @@ namespace AutoStatisticHour
 
                     //SqlParameter[] paras ={
                     //            new SqlParameter("@LineNumber",SqlDbType.TinyInt);
-                    //            new SqlParameter("@SeatNumber", SqlDbType.TinyInt);
-                    //            new SqlParameter("@StartDataTime", SqlDbType.DateTime);
-                    //            new SqlParameter("@EndDataTime", SqlDbType.DateTime);
-                    //            new SqlParameter("@WorkTime", SqlDbType.Int);
+                    //new SqlParameter("@SeatNumber", SqlDbType.TinyInt);
+                    //new SqlParameter("@StartDataTime", SqlDbType.DateTime);
+                    //new SqlParameter("@EndDataTime", SqlDbType.DateTime);
+                    //new SqlParameter("@WorkTime", SqlDbType.Int);
                     //};
 
-                    //cmd.Parameters.AddRange(lineNumber,seatNumber,startDateTime,endDateTime,workTime);
+                    //cmd.Parameters.AddRange(lineNumber, seatNumber, startDateTime, endDateTime, workTime);
 
                     conn.Open();
                     count = cmd.ExecuteNonQuery();
@@ -124,8 +128,8 @@ namespace AutoStatisticHour
             }
             if (count > 0)
             {
-                Console.WriteLine("insert successfully! ");
-                Console.ReadKey();
+                Console.WriteLine("insert into successfully! ");
+                //Console.ReadKey();
 
             }
 
@@ -140,15 +144,15 @@ namespace AutoStatisticHour
         static string  GetStartDateTime(int seatNumber,ActUtlType actUtlType)
         {
             Dictionary<int, String[]> dict = new Dictionary<int, String[]>();
-            string[] str1 = { "D200", "D201", "D202", "D203", "D204", "D220" };
+            string[] str1 = { "D200", "D201", "D202", "D203", "D204", "D205" };
             dict.Add(1, str1);
 
-            Console.WriteLine($"D200:{dict[seatNumber][0]}");
-            Console.WriteLine($"D201:{dict[seatNumber][1]}");
-            Console.WriteLine($"D202:{dict[seatNumber][2]}");
-            Console.WriteLine($"D203:{dict[seatNumber][3]}");
-            Console.WriteLine($"D204:{dict[seatNumber][4]}");
-            Console.WriteLine($"D205:{dict[seatNumber][5]}");
+            //Console.WriteLine($"D200:{dict[seatNumber][0]}");
+            //Console.WriteLine($"D201:{dict[seatNumber][1]}");
+            //Console.WriteLine($"D202:{dict[seatNumber][2]}");
+            //Console.WriteLine($"D203:{dict[seatNumber][3]}");
+            //Console.WriteLine($"D204:{dict[seatNumber][4]}");
+            //Console.WriteLine($"D205:{dict[seatNumber][5]}");
 
             int IRetYear = actUtlType.GetDevice2($"{ dict[seatNumber][0]}", out short resYear);
             int IRetMonth = actUtlType.GetDevice2($"{dict[seatNumber][1]}", out short resMonth);
@@ -158,12 +162,12 @@ namespace AutoStatisticHour
             int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
 
 
-            Console.WriteLine($"resMonth:{resYear}");
-            Console.WriteLine($"resMonth:{resMonth}");
-            Console.WriteLine($"resDay:{resDay}");
-            Console.WriteLine($"resHour:{resHour}");
-            Console.WriteLine($"resMin:{resMin}");
-            Console.WriteLine($"resSec:{resSec}");
+            //Console.WriteLine($"resMonth:{resYear}");
+            //Console.WriteLine($"resMonth:{resMonth}");
+            //Console.WriteLine($"resDay:{resDay}");
+            //Console.WriteLine($"resHour:{resHour}");
+            //Console.WriteLine($"resMin:{resMin}");
+            //Console.WriteLine($"resSec:{resSec}");
 
             string startDateTime = resYear.ToString() + "-" + resMonth.ToString() + "-" + resDay.ToString() + " " +
                     resHour.ToString() + ":" + resMin.ToString() + ":" + resSec.ToString();
@@ -186,12 +190,12 @@ namespace AutoStatisticHour
             string[] str1 = { "D207", "D208", "D209", "D210", "D211", "D212" };
             dict.Add(1, str1);
 
-            Console.WriteLine($"D200:{dict[seatNumber][0]}");
-            Console.WriteLine($"D201:{dict[seatNumber][1]}");
-            Console.WriteLine($"D202:{dict[seatNumber][2]}");
-            Console.WriteLine($"D203:{dict[seatNumber][3]}");
-            Console.WriteLine($"D204:{dict[seatNumber][4]}");
-            Console.WriteLine($"D205:{dict[seatNumber][5]}");
+            //Console.WriteLine($"D200:{dict[seatNumber][0]}");
+            //Console.WriteLine($"D201:{dict[seatNumber][1]}");
+            //Console.WriteLine($"D202:{dict[seatNumber][2]}");
+            //Console.WriteLine($"D203:{dict[seatNumber][3]}");
+            //Console.WriteLine($"D204:{dict[seatNumber][4]}");
+            //Console.WriteLine($"D205:{dict[seatNumber][5]}");
 
             int IRetYear = actUtlType.GetDevice2($"{ dict[seatNumber][0]}", out short resYear);
             int IRetMonth = actUtlType.GetDevice2($"{dict[seatNumber][1]}", out short resMonth);
@@ -201,12 +205,12 @@ namespace AutoStatisticHour
             int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
 
 
-            Console.WriteLine($"resMonth:{resYear}");
-            Console.WriteLine($"resMonth:{resMonth}");
-            Console.WriteLine($"resDay:{resDay}");
-            Console.WriteLine($"resHour:{resHour}");
-            Console.WriteLine($"resMin:{resMin}");
-            Console.WriteLine($"resSec:{resSec}");
+            //Console.WriteLine($"resMonth:{resYear}");
+            //Console.WriteLine($"resMonth:{resMonth}");
+            //Console.WriteLine($"resDay:{resDay}");
+            //Console.WriteLine($"resHour:{resHour}");
+            //Console.WriteLine($"resMin:{resMin}");
+            //Console.WriteLine($"resSec:{resSec}");
 
             string endDateTime = resYear.ToString() + "-" + resMonth.ToString() + "-" + resDay.ToString() + " " +
                     resHour.ToString() + ":" + resMin.ToString() + ":" + resSec.ToString();
@@ -224,7 +228,7 @@ namespace AutoStatisticHour
         /// <returns>resWorkTime</returns>
         static Int16 GetWorkTime(int SeatNumber, ActUtlType actUtlType)
         {
-            Dictionary<int, string > dict = new <int, sting> ( );
+            Dictionary<int, String> dict = new Dictionary<int, String>();
             dict.Add(1, "D220");
             int IRetWorkTime = actUtlType.GetDevice2("D220", out short resWorkTime);
             return resWorkTime;
