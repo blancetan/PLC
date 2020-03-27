@@ -15,10 +15,9 @@ namespace AutoStatisticHour
     class Program
     {
         /// <summary>
-        /// main   collecting workTime from PLC  insert into DataBase
+        /// main   collecting workTime from PLC and  insert into DataBase
         /// </summary>
         /// <param name="args"></param>
-        
         static void Main(string[] args)
         {
             // create ActUtlType object
@@ -39,25 +38,11 @@ namespace AutoStatisticHour
                         for (int i = 1; i <= 1; i++)
                         {
                             Int16 lineNumber = GetLineNumber(actUtlType);
-                            //////Int16 seatNumber = GetSeatNumber();
-                            Int16 seatNumber = 1;
+                            Int16 seatNumber = GetSeatNumber(i, actUtlType);
                             string startDateTime = GetStartDateTime(i, actUtlType);
                             string endDateTime = GetEndDateTime(i, actUtlType);
                             int workTime = GetWorkTime(i, actUtlType);
                             bool isSensorExist = CheckSensorIsExist(i, actUtlType);
-
-                            // ..this datas are used to  test
-                            //Int16 lineNumber = 1;
-                            //Int16 seatNumber = 2;
-                            //string startDateTime = "20-3-24 12:34:30";
-                            //string endDateTime = "20-3-24 12:34:50";
-                            //Int16 workTime = 20;
-                            //bool isSensorExist = true;
-                            //int IRetFrontSensor = actUtlType.GetDevice2("C0", out short resFrontSensor);
-                            //Console.WriteLine($"C0:{resFrontSensor}");
-
-                            //int IRetFrontSensor1 = actUtlType.GetDevice2("C1", out short resFrontSensor1);
-                            //Console.WriteLine($"C1:{resFrontSensor1}");
 
                             ExcueteInsertToSqlServer(lineNumber, seatNumber, startDateTime, endDateTime, workTime,isSensorExist);
 
@@ -78,16 +63,10 @@ namespace AutoStatisticHour
                 {
                     Console.WriteLine(ex.ToString());
                 }
-                finally
-                {
-
-                }
-
             }
           
             
         }
-
 
         /// <summary>
         /// ExcueteInsertToSqlServer
@@ -154,8 +133,8 @@ namespace AutoStatisticHour
         static string  GetStartDateTime(int seatNumber,ActUtlType actUtlType)
         {
             Dictionary<int, String[]> dict = new Dictionary<int, String[]>();
-            string[] str1 = { "D200", "D201", "D202", "D203", "D204", "D205" };
-            dict.Add(1, str1);
+            string[] seat1 = { "D200", "D201", "D202", "D203", "D204", "D205" };
+            dict.Add(1, seat1);
 
             //Console.WriteLine($"D200:{dict[seatNumber][0]}");
             //Console.WriteLine($"D201:{dict[seatNumber][1]}");
@@ -184,10 +163,7 @@ namespace AutoStatisticHour
 
             return startDateTime;
 
-
-
         }
-       
 
         /// <summary>
         /// GetEndDateTime
@@ -229,7 +205,6 @@ namespace AutoStatisticHour
 
         }
 
-
         /// <summary>
         /// GetWorkTime
         /// </summary>
@@ -240,7 +215,7 @@ namespace AutoStatisticHour
         {
             Dictionary<int, String> dict = new Dictionary<int, String>();
             dict.Add(1, "D220");
-            int IRetWorkTime = actUtlType.GetDevice2("D220", out short resWorkTime);
+            int IRetWorkTime = actUtlType.GetDevice2(dict[SeatNumber], out short resWorkTime);
             return resWorkTime;
 
         }
@@ -250,21 +225,30 @@ namespace AutoStatisticHour
         /// </summary>
         /// <param name="actUtlType"></param>
         /// <returns>resLineNum</returns>
-
-
         static Int16 GetLineNumber(ActUtlType actUtlType)
         {
-            int IRetLineNum = actUtlType.GetDevice2("D213", out short resLineNum);
+            int IRetLineNum_Write = actUtlType.SetDevice2("D512", 1);
+            int IRetLineNum_Read = actUtlType.GetDevice2("D512", out short resLineNum);
             return resLineNum;
 
         }
+        /// <summary>
+        /// GetSeatNumber
+        /// </summary>
+        /// <param name="seatNumber"></param>
+        /// <param name="actUtlType"></param>
+        /// <returns>resSeatNum</returns>
+        static Int16 GetSeatNumber(int seatNumber, ActUtlType actUtlType)
+        {
 
-        /*static Int16 GetSeatNumber()
-        { 
-            
-            
-        
-        }*/
+            Dictionary<int, string> dict = new Dictionary<int, string>();
+            dict.Add(1, "D513");
+            int IRetLineNum_Write = actUtlType.SetDevice(dict[seatNumber], seatNumber);
+            int IRetLineNum_Read = actUtlType.GetDevice2(dict[seatNumber], out short resSeatNum);
+            return resSeatNum;
+
+
+        }
 
         /// <summary>
         /// check  sensors are or not online
