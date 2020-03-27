@@ -94,9 +94,10 @@ namespace AutoStatisticHour
         /// </summary>
         /// <param name="lineNumber"></param>
         /// <param name="seatNumber"></param>
-        /// <param name="startDateTime"></param>
+        /// <param name="startDateTime"></param>S
         /// <param name="endDateTime"></param>
         /// <param name="workTime"></param>
+        /// <param name="isSensorExist"></param>
         static void ExcueteInsertToSqlServer(Int16 lineNumber, Int16 seatNumber, string startDateTime, string endDateTime, int workTime, bool isSensorExist)
         {
             string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
@@ -273,16 +274,16 @@ namespace AutoStatisticHour
         /// <returns>isSensorExist</returns>
         static bool CheckSensorIsExist(int seatNumber, ActUtlType actUtlType)
         {
-            // the  first  seat      
+            // isSensorExist default  is true     
             bool isSensorExist = true;
             Dictionary<int, String[]> dict = new Dictionary<int, String[]>();
-            string[] str1 = { "C0", "C1"};
+            string[] str1 = { "D206", "D213"};
             dict.Add(1, str1);
 
             int IRetFrontSensor = actUtlType.GetDevice2(dict[seatNumber][0], out short resFrontSensor);
             int IRetBehindSensor = actUtlType.GetDevice2(dict[seatNumber][1], out short resBehindSensor);
 
-            if ((resFrontSensor == 0) || (resBehindSensor == 0 ))
+            if ((resFrontSensor == 1) || (resBehindSensor == 1))
             {
                 isSensorExist = false;
             }
