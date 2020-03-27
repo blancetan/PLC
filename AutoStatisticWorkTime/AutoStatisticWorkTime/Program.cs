@@ -31,32 +31,40 @@ namespace AutoStatisticHour
             
             {
                 try
-                {
+                {    
                     int iReturnCode = actUtlType.Open();
                     if (iReturnCode == 0)
-                    {
-                        for (int i = 1; i <= 10; i++)
+
+                    {  //  Set value of i  based on the number of seat
+                        for (int i = 1; i <= 1; i++)
                         {
-                            Int16 lineNumber = GetLineNumber(actUtlType);
-                            ////Int16 seatNumber = GetSeatNumber();
-                            Int16 seatNumber = 1;
-                            string startDateTime = GetStartDateTime(i, actUtlType);
-                            string endDateTime = GetEndDateTime(i, actUtlType);
-                            int workTime = GetWorkTime(i, actUtlType);
+                            //Int16 lineNumber = GetLineNumber(actUtlType);
+                            //////Int16 seatNumber = GetSeatNumber();
+                            //Int16 seatNumber = 1;
+                            //string startDateTime = GetStartDateTime(i, actUtlType);
+                            //string endDateTime = GetEndDateTime(i, actUtlType);
+                            //int workTime = GetWorkTime(i, actUtlType);
+                            ////bool isSensorExist = CheckSensorIsExist(i, actUtlType);
 
                             // ..this datas are used to  test
-                            //Int16 lineNumber = 1;
-                            //Int16 seatNumber = 2;
-                            //string startDateTime = "20-3-24 12:34:30";
-                            //string endDateTime = "20-3-24 12:34:50";
-                            //int workTime = 20;
+                            Int16 lineNumber = 1;
+                            Int16 seatNumber = 2;
+                            string startDateTime = "20-3-24 12:34:30";
+                            string endDateTime = "20-3-24 12:34:50";
+                            Int16 workTime = 20;
+                            bool isSensorExist = true;
+                            //int IRetFrontSensor = actUtlType.GetDevice2("C0", out short resFrontSensor);
+                            //Console.WriteLine($"C0:{resFrontSensor}");
 
+                            //int IRetFrontSensor1 = actUtlType.GetDevice2("C1", out short resFrontSensor1);
+                            //Console.WriteLine($"C1:{resFrontSensor1}");
 
-                            ExcueteInsertToSqlServer(lineNumber, seatNumber, startDateTime, endDateTime, workTime);
+                            ExcueteInsertToSqlServer(lineNumber, seatNumber, startDateTime, endDateTime, workTime,isSensorExist);
 
                         }
 
                         actUtlType.Close();
+                        System.Threading.Thread.Sleep(1000);  // sleep  1s
 
                     }
 
@@ -89,7 +97,7 @@ namespace AutoStatisticHour
         /// <param name="startDateTime"></param>
         /// <param name="endDateTime"></param>
         /// <param name="workTime"></param>
-        static void ExcueteInsertToSqlServer(Int16 lineNumber, Int16 seatNumber, string startDateTime, string endDateTime, int workTime)
+        static void ExcueteInsertToSqlServer(Int16 lineNumber, Int16 seatNumber, string startDateTime, string endDateTime, int workTime, bool isSensorExist)
         {
             string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
             //SqlConnection conn = null;
@@ -98,8 +106,8 @@ namespace AutoStatisticHour
             {
 
                 {
-                    string insertSql = "insert into t_ProductWorkTimeInfos(LineNumber,SeatNumber,StartDataTime,EndDataTime,WorkTime)" +
-                        "values(@LineNumber,@SeatNumber,@StartDataTime,@EndDataTime,@WorkTime)";
+                    string insertSql = "insert into t_ProductWorkTimeInfos(LineNumber,SeatNumber,StartDataTime,EndDataTime,WorkTime,IsSensorExist)" +
+                        "values(@LineNumber,@SeatNumber,@StartDataTime,@EndDataTime,@WorkTime,@IsSensorExist)";
                     SqlCommand cmd = new SqlCommand(insertSql, conn);
 
 
@@ -108,6 +116,7 @@ namespace AutoStatisticHour
                     cmd.Parameters.AddWithValue("@StartDataTime", startDateTime);
                     cmd.Parameters.AddWithValue("@EndDataTime", endDateTime);
                     cmd.Parameters.AddWithValue("@WorkTime", workTime);
+                    cmd.Parameters.AddWithValue("@IsSensorExist", isSensorExist);
 
                     //SqlParameter[] paras ={
                     //            new SqlParameter("@LineNumber",SqlDbType.TinyInt);
@@ -162,7 +171,7 @@ namespace AutoStatisticHour
             int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
 
 
-            //Console.WriteLine($"resMonth:{resYear}");
+            //Console.WriteLine($"resYear:{resYear}");
             //Console.WriteLine($"resMonth:{resMonth}");
             //Console.WriteLine($"resDay:{resDay}");
             //Console.WriteLine($"resHour:{resHour}");
@@ -205,7 +214,7 @@ namespace AutoStatisticHour
             int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
 
 
-            //Console.WriteLine($"resMonth:{resYear}");
+            //Console.WriteLine($"resYear:{resYear}");
             //Console.WriteLine($"resMonth:{resMonth}");
             //Console.WriteLine($"resDay:{resDay}");
             //Console.WriteLine($"resHour:{resHour}");
@@ -249,12 +258,41 @@ namespace AutoStatisticHour
 
         }
 
-       /*static Int16 GetSeatNumber()
+        /*static Int16 GetSeatNumber()
         { 
             
-        
+            
         
         }*/
+
+        /// <summary>
+        /// check  sensors are or not online
+        /// </summary>
+        /// <param name="seatNumber"></param>
+        /// <param name="actUtlType"></param>
+        /// <returns>isSensorExist</returns>
+        static bool CheckSensorIsExist(int seatNumber, ActUtlType actUtlType)
+        {
+            // the  first  seat      
+            bool isSensorExist = true;
+            Dictionary<int, String[]> dict = new Dictionary<int, String[]>();
+            string[] str1 = { "C0", "C1"};
+            dict.Add(1, str1);
+
+            int IRetFrontSensor = actUtlType.GetDevice2(dict[seatNumber][0], out short resFrontSensor);
+            int IRetBehindSensor = actUtlType.GetDevice2(dict[seatNumber][1], out short resBehindSensor);
+
+            if (resFrontSensor == 0)
+            {
+                isSensorExist = false;
+            }
+            if (resBehindSensor == 0)
+            {
+                isSensorExist = false;
+            }
+            return isSensorExist;
+
+        }
     }
 
 
