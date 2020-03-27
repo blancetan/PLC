@@ -34,7 +34,7 @@ namespace AutoStatisticHour
                     int iReturnCode = actUtlType.Open();
                     if (iReturnCode == 0)
 
-                    {  //  Set value of i  based on the number of seat
+                    {  //  Set value of i  based on the quantity of seats
                         for (int i = 1; i <= 1; i++)
                         {
                             Int16 lineNumber = GetLineNumber(actUtlType);
@@ -54,19 +54,24 @@ namespace AutoStatisticHour
                     }
 
                     else
+
                     {
-                        Console.WriteLine("connection fail! please reconnecting");
+                        Console.WriteLine("PLC connecting  fail! please check wire and reconnecting");
+                      
                     }
 
                 }
                 catch (Exception ex)
+
                 {
                     Console.WriteLine(ex.ToString());
+                    
                 }
             }
           
             
         }
+
 
         /// <summary>
         /// ExcueteInsertToSqlServer
@@ -82,47 +87,67 @@ namespace AutoStatisticHour
             string connStr = ConfigurationManager.ConnectionStrings["connStr"].ConnectionString;
             //SqlConnection conn = null;
             int count = 0;
-            using (SqlConnection conn = new SqlConnection(connStr))
+
+            try
             {
-
+                using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    string insertSql = "insert into t_ProductWorkTimeInfos(LineNumber,SeatNumber,StartDataTime,EndDataTime,WorkTime,IsSensorExist)" +
-                        "values(@LineNumber,@SeatNumber,@StartDataTime,@EndDataTime,@WorkTime,@IsSensorExist)";
-                    SqlCommand cmd = new SqlCommand(insertSql, conn);
+
+                    {
+                        string insertSql = "insert into t_ProductWorkTimeInfos(LineNumber,SeatNumber,StartDataTime,EndDataTime,WorkTime,IsSensorExist)" +
+                            "values(@LineNumber,@SeatNumber,@StartDataTime,@EndDataTime,@WorkTime,@IsSensorExist)";
+                        SqlCommand cmd = new SqlCommand(insertSql, conn);
 
 
-                    cmd.Parameters.AddWithValue("@LineNumber", lineNumber);
-                    cmd.Parameters.AddWithValue("@SeatNumber", seatNumber);
-                    cmd.Parameters.AddWithValue("@StartDataTime", startDateTime);
-                    cmd.Parameters.AddWithValue("@EndDataTime", endDateTime);
-                    cmd.Parameters.AddWithValue("@WorkTime", workTime);
-                    cmd.Parameters.AddWithValue("@IsSensorExist", isSensorExist);
+                        cmd.Parameters.AddWithValue("@LineNumber", lineNumber);
+                        cmd.Parameters.AddWithValue("@SeatNumber", seatNumber);
+                        cmd.Parameters.AddWithValue("@StartDataTime", startDateTime);
+                        cmd.Parameters.AddWithValue("@EndDataTime", endDateTime);
+                        cmd.Parameters.AddWithValue("@WorkTime", workTime);
+                        cmd.Parameters.AddWithValue("@IsSensorExist", isSensorExist);
 
-                    //SqlParameter[] paras ={
-                    //            new SqlParameter("@LineNumber",SqlDbType.TinyInt);
-                    //new SqlParameter("@SeatNumber", SqlDbType.TinyInt);
-                    //new SqlParameter("@StartDataTime", SqlDbType.DateTime);
-                    //new SqlParameter("@EndDataTime", SqlDbType.DateTime);
-                    //new SqlParameter("@WorkTime", SqlDbType.Int);
-                    //};
+                        //SqlParameter[] paras ={
+                        //            new SqlParameter("@LineNumber",SqlDbType.TinyInt);
+                        //new SqlParameter("@SeatNumber", SqlDbType.TinyInt);
+                        //new SqlParameter("@StartDataTime", SqlDbType.DateTime);
+                        //new SqlParameter("@EndDataTime", SqlDbType.DateTime);
+                        //new SqlParameter("@WorkTime", SqlDbType.Int);
+                        //};
 
-                    //cmd.Parameters.AddRange(lineNumber, seatNumber, startDateTime, endDateTime, workTime);
+                        //cmd.Parameters.AddRange(lineNumber, seatNumber, startDateTime, endDateTime, workTime);
 
-                    conn.Open();
-                    count = cmd.ExecuteNonQuery();
-                    conn.Close();
+                        conn.Open();
+                        count = cmd.ExecuteNonQuery();
+                        conn.Close();
+
+                    }
+
+
+                }
+
+
+            }
+
+            catch
+            {
+                Console.WriteLine("Database connecting  fail, please check wire and reconnecting! ");
+
+            }
+
+            finally 
+            {
+                if (count > 0)
+                {
+                    Console.WriteLine("insert into successfully! ");
+                    //Console.ReadKey();
 
                 }
 
             }
-            if (count > 0)
-            {
-                Console.WriteLine("insert into successfully! ");
-                //Console.ReadKey();
-
-            }
+            
 
         }
+
 
         /// <summary>
         /// GetStartDateTime
@@ -165,6 +190,7 @@ namespace AutoStatisticHour
 
         }
 
+
         /// <summary>
         /// GetEndDateTime
         /// </summary>
@@ -205,6 +231,7 @@ namespace AutoStatisticHour
 
         }
 
+
         /// <summary>
         /// GetWorkTime
         /// </summary>
@@ -220,6 +247,7 @@ namespace AutoStatisticHour
 
         }
 
+
         /// <summary>
         /// GetLineNumber
         /// </summary>
@@ -232,6 +260,8 @@ namespace AutoStatisticHour
             return resLineNum;
 
         }
+
+
         /// <summary>
         /// GetSeatNumber
         /// </summary>
@@ -249,6 +279,7 @@ namespace AutoStatisticHour
 
 
         }
+
 
         /// <summary>
         /// check  sensors are or not online
