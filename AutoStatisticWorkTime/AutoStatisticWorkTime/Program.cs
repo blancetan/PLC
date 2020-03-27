@@ -38,21 +38,21 @@ namespace AutoStatisticHour
                     {  //  Set value of i  based on the number of seat
                         for (int i = 1; i <= 1; i++)
                         {
-                            //Int16 lineNumber = GetLineNumber(actUtlType);
+                            Int16 lineNumber = GetLineNumber(actUtlType);
                             //////Int16 seatNumber = GetSeatNumber();
-                            //Int16 seatNumber = 1;
-                            //string startDateTime = GetStartDateTime(i, actUtlType);
-                            //string endDateTime = GetEndDateTime(i, actUtlType);
-                            //int workTime = GetWorkTime(i, actUtlType);
-                            ////bool isSensorExist = CheckSensorIsExist(i, actUtlType);
+                            Int16 seatNumber = 1;
+                            string startDateTime = GetStartDateTime(i, actUtlType);
+                            string endDateTime = GetEndDateTime(i, actUtlType);
+                            int workTime = GetWorkTime(i, actUtlType);
+                            bool isSensorExist = CheckSensorIsExist(i, actUtlType);
 
                             // ..this datas are used to  test
-                            Int16 lineNumber = 1;
-                            Int16 seatNumber = 2;
-                            string startDateTime = "20-3-24 12:34:30";
-                            string endDateTime = "20-3-24 12:34:50";
-                            Int16 workTime = 20;
-                            bool isSensorExist = true;
+                            //Int16 lineNumber = 1;
+                            //Int16 seatNumber = 2;
+                            //string startDateTime = "20-3-24 12:34:30";
+                            //string endDateTime = "20-3-24 12:34:50";
+                            //Int16 workTime = 20;
+                            //bool isSensorExist = true;
                             //int IRetFrontSensor = actUtlType.GetDevice2("C0", out short resFrontSensor);
                             //Console.WriteLine($"C0:{resFrontSensor}");
 
@@ -282,14 +282,11 @@ namespace AutoStatisticHour
             int IRetFrontSensor = actUtlType.GetDevice2(dict[seatNumber][0], out short resFrontSensor);
             int IRetBehindSensor = actUtlType.GetDevice2(dict[seatNumber][1], out short resBehindSensor);
 
-            if (resFrontSensor == 0)
+            if ((resFrontSensor == 0) || (resBehindSensor == 0 ))
             {
                 isSensorExist = false;
             }
-            if (resBehindSensor == 0)
-            {
-                isSensorExist = false;
-            }
+            
             return isSensorExist;
 
         }
