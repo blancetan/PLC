@@ -20,12 +20,21 @@ namespace AutoStatisticHour
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            
             // create ActUtlType object
             ActUtlType actUtlType = new ActUtlType();
             // logicalStationNumbet 
             actUtlType.ActLogicalStationNumber = 1;
             // not set password, is null
             actUtlType.ActPassword = "";
+            //List<string> workTime = new List<string>();
+            Dictionary<int, int[]> beforeDict = null;
+            for (int i = 1; i <= 1; i++)
+            {
+                beforeDict = InitStartDataTime(i, actUtlType);
+
+            }
+            
             while (true) 
             
             {
@@ -34,22 +43,34 @@ namespace AutoStatisticHour
                     int iReturnCode = actUtlType.Open();
                     if (iReturnCode == 0)
 
-                    {  //  Set value of i  based on the quantity of seats
+                    { 
+                        //  Set value of i  based on the quantity of seats
                         for (int i = 1; i <= 1; i++)
-                        {
+                        {   
                             Int16 lineNumber = GetLineNumber(actUtlType);
                             Int16 seatNumber = GetSeatNumber(i, actUtlType);
                             string startDateTime = GetStartDateTime(i, actUtlType);
                             string endDateTime = GetEndDateTime(i, actUtlType);
                             int workTime = GetWorkTime(i, actUtlType);
                             bool isSensorExist = CheckSensorIsExist(i, actUtlType);
+                            Dictionary<int, int[]> currentDict = CurrentStartDataTime(i, actUtlType);
+                           
+                            if (workTime <= 0 || workTime > 3600)
+                            {
+                                continue;
+                            }
+                            if (beforeDict[i].All(currentDict[i].Contains) && (beforeDict[i].Count() == currentDict[i].Count()))
+                            {
+                                continue;
 
+                            }
                             ExcueteInsertToSqlServer(lineNumber, seatNumber, startDateTime, endDateTime, workTime,isSensorExist);
-
+                            beforeDict[i] = currentDict[i];
                         }
 
+                      
                         actUtlType.Close();
-                        System.Threading.Thread.Sleep(1000);  // sleep  1s
+                        //System.Threading.Thread.Sleep(1000);  // sleep  1s
 
                     }
 
@@ -65,6 +86,7 @@ namespace AutoStatisticHour
 
                 {
                     Console.WriteLine(ex.ToString());
+                    Console.ReadKey();
                     
                 }
             }
@@ -190,6 +212,48 @@ namespace AutoStatisticHour
 
         }
 
+        static Dictionary<int, int[]> InitStartDataTime(int seatNumber, ActUtlType actUtlType)
+        {
+            Dictionary<int, String[]> dict = new Dictionary<int, String[]>();
+            Dictionary<int, int[]> dict1 = new Dictionary<int, int[]>();
+
+            string[] seat1 = { "D200", "D201", "D202", "D203", "D204", "D205" };
+            dict.Add(1, seat1);
+
+            int IRetYear = actUtlType.GetDevice2($"{ dict[seatNumber][0]}", out short resYear);
+            int IRetMonth = actUtlType.GetDevice2($"{dict[seatNumber][1]}", out short resMonth);
+            int IRetDay = actUtlType.GetDevice2($"{dict[seatNumber][2]}", out short resDay);
+            int IRetHour = actUtlType.GetDevice2($"{dict[seatNumber][3]}", out short resHour);
+            int IRetMin = actUtlType.GetDevice2($"{dict[seatNumber][4]}", out short resMin);
+            int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
+
+            int[] seat2 = { resYear, resMonth, resDay, resHour, resMin, resSec };
+            dict1.Add(seatNumber, seat2);
+            return dict1;
+        }
+
+        static Dictionary<int, int[]> CurrentStartDataTime(int seatNumber, ActUtlType actUtlType)
+        {
+    
+            Dictionary<int, string[]> dict = new Dictionary<int, string[]>();
+            Dictionary<int, int[]> dict1 = new Dictionary<int, int[]>();
+
+            string[] seat1 = { "D200", "D201", "D202", "D203", "D204", "D205" };
+            dict.Add(1, seat1);
+
+            int IRetYear = actUtlType.GetDevice2($"{ dict[seatNumber][0]}", out short resYear);
+            int IRetMonth = actUtlType.GetDevice2($"{dict[seatNumber][1]}", out short resMonth);
+            int IRetDay = actUtlType.GetDevice2($"{dict[seatNumber][2]}", out short resDay);
+            int IRetHour = actUtlType.GetDevice2($"{dict[seatNumber][3]}", out short resHour);
+            int IRetMin = actUtlType.GetDevice2($"{dict[seatNumber][4]}", out short resMin);
+            int IRetSec = actUtlType.GetDevice2($"{dict[seatNumber][5]}", out short resSec);
+
+            int[] seat2 = { resYear, resMonth, resDay, resHour, resMin, resSec };
+            dict1.Add(seatNumber, seat2);
+            return dict1;
+
+
+        }
 
         /// <summary>
         /// GetEndDateTime
